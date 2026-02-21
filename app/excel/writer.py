@@ -51,7 +51,7 @@ def completar_carton_medico(datos):
     # Peso corporal
     peso = datos.get("peso")
     if peso is not None:
-        ws_f["I10"] = f"{peso} kg"
+        ws_f["I10"] = f"{int(peso)} kg"
 
     # ID del paciente
     id_paciente = datos.get("id")
