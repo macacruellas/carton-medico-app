@@ -25,6 +25,8 @@ def formatear_dosis(valor):
         return None
     try:
         v = float(valor)
-        return f"{int(v)} Gy"
+        if v == int(v):
+            return f"{int(v)} Gy"
+        return f"{v:.2f} Gy"
     except (ValueError, TypeError):
         return f"{valor} Gy"
