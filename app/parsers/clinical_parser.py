@@ -25,7 +25,7 @@ def parsear_historia_clinica(texto):
         "interrogatorio": None,
     }
 
-    bloques_interrogatorio = []
+    bloques_interrogatorio = []  # lista de (fecha_str, contenido)
     lineas = [l.strip() for l in texto.splitlines() if l.strip()]
 
     for i, linea in enumerate(lineas):
@@ -100,16 +100,24 @@ def parsear_historia_clinica(texto):
             if m_h:
                 data["histologia"] = m_h.group(1).strip()
 
-        # --- Interrogatorio (último bloque) ---
+        # --- Interrogatorio (último bloque con fecha más reciente) ---
         if "INTERROGATORIO" in linea.upper():
             j = i + 1
             bloque = []
+            fecha_bloque = None
 
             while j < len(lineas) and not lineas[j].strip():
                 j += 1
 
-            if j < len(lineas) and re.search(r"\d{2}/\d{2}/\d{4}", lineas[j]):
-                j += 1
+            if j < len(lineas):
+                m_fecha = re.search(r"(\d{2})/(\d{2})/(\d{4})", lineas[j])
+                if m_fecha:
+                    fecha_bloque = (
+                        int(m_fecha.group(3)),  # año
+                        int(m_fecha.group(2)),  # mes
+                        int(m_fecha.group(1)),  # día
+                    )
+                    j += 1
 
             while j < len(lineas):
                 l2 = lineas[j].rstrip()
@@ -130,12 +138,18 @@ def parsear_historia_clinica(texto):
                 bloque.append(l2)
                 j += 1
 
-            if bloque:
-                bloques_interrogatorio.append("\n".join(bloque))
+            contenido = "\n".join(bloque)
+            # Filtrar bloques basura (muy cortos, sin contenido clínico real)
+            if bloque and len(contenido) > 30:
+                bloques_interrogatorio.append((fecha_bloque, contenido))
 
-    # Elegimos el bloque de interrogatorio más largo (el que tiene contenido real)
+    # Elegimos el interrogatorio con fecha más reciente; si no hay fechas, el último
     if bloques_interrogatorio:
-        data["interrogatorio"] = max(bloques_interrogatorio, key=len)
+        bloques_con_fecha = [(f, c) for f, c in bloques_interrogatorio if f]
+        if bloques_con_fecha:
+            data["interrogatorio"] = max(bloques_con_fecha, key=lambda x: x[0])[1]
+        else:
+            data["interrogatorio"] = bloques_interrogatorio[-1][1]
 
     # Prescripción braquiterapia
     presc_braqui = parsear_prescripcion_braqui(texto)
