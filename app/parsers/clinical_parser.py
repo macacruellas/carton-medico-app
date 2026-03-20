@@ -139,8 +139,14 @@ def parsear_historia_clinica(texto):
                 j += 1
 
             contenido = "\n".join(bloque)
-            # Filtrar bloques basura (muy cortos, sin contenido clínico real)
-            if bloque and len(contenido) > 30:
+            # Filtrar bloques basura del encabezado/menú del PDF
+            basura = ["historia clinica digital", "paciente", "menu"]
+            contenido_lower = contenido.lower()
+            es_basura = all(
+                palabra in contenido_lower
+                for palabra in ["historia", "clinica", "digital"]
+            ) or len(contenido) <= 30
+            if bloque and not es_basura:
                 bloques_interrogatorio.append((fecha_bloque, contenido))
 
     # Elegimos el interrogatorio con fecha más reciente; si no hay fechas, el último
