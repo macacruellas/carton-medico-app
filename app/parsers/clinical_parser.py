@@ -133,9 +133,9 @@ def parsear_historia_clinica(texto):
             if bloque:
                 bloques_interrogatorio.append("\n".join(bloque))
 
-    # Elegimos SIEMPRE el último interrogatorio encontrado
+    # Elegimos el bloque de interrogatorio más largo (el que tiene contenido real)
     if bloques_interrogatorio:
-        data["interrogatorio"] = bloques_interrogatorio[-1]
+        data["interrogatorio"] = max(bloques_interrogatorio, key=len)
 
     # Prescripción braquiterapia
     presc_braqui = parsear_prescripcion_braqui(texto)
