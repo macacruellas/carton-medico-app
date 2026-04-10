@@ -39,11 +39,11 @@ def completar_carton_medico(datos):
 
     apellido, nombre = separar_apellido_nombre(nombre_completo)
 
-    if apellido:
-        escribir_en_una_linea(ws_f, "C9", apellido, horizontal="center")
+    partes = [p for p in [apellido, nombre] if p]
+    nombre_completo_celda = " ".join(partes) if partes else None
 
-    if nombre:
-        escribir_en_una_linea(ws_f, "C10", nombre, horizontal="center")
+    if nombre_completo_celda:
+        escribir_en_una_linea(ws_f, "C9", nombre_completo_celda, horizontal="center")
 
     if edad is not None:
         ws_f["I9"] = edad
@@ -51,7 +51,7 @@ def completar_carton_medico(datos):
     # Peso corporal
     peso = datos.get("peso")
     if peso is not None:
-        ws_f["I10"] = f"{int(peso)} kg"
+        escribir_en_una_linea(ws_f, "I10", f"{int(peso)} kg")
 
     # ID del paciente
     id_paciente = datos.get("id")
